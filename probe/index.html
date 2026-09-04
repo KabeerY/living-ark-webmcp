@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>WebMCP Same-Session Tool Birth Probe</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">FATAL PROBE 01</p>
+        <h1>Can the same agent use a tool born mid-turn?</h1>
+        <p class="lede">
+          This page begins with two tools. Calling <code>birth_increment_capability</code>
+          registers a genuinely new typed WebMCP tool. A pass requires the same agent,
+          in the same conversation and without refreshing, to call that new tool.
+        </p>
+      </header>
+
+      <section class="grid" aria-label="Probe state">
+        <article class="card status-card">
+          <span class="label">Native WebMCP</span>
+          <strong id="api-status" class="value waiting">Detecting…</strong>
+          <span id="api-detail" class="detail">Waiting for document.modelContext</span>
+        </article>
+
+        <article class="card">
+          <span class="label">Born capability</span>
+          <strong id="tool-status" class="value">ABSENT</strong>
+          <span class="detail"><code>increment_world_by_7</code></span>
+        </article>
+
+        <article class="card world-card">
+          <span class="label">Canonical world value</span>
+          <strong id="world-value" class="world-value">0</strong>
+          <span class="detail">Must become exactly 7 through the born tool</span>
+        </article>
+
+        <article class="card">
+          <span class="label">Verdict</span>
+          <strong id="verdict" class="value">UNTESTED</strong>
+          <span id="verdict-detail" class="detail">No agent calls observed yet</span>
+        </article>
+      </section>
+
+      <section class="test-panel">
+        <div>
+          <p class="eyebrow">ONE-TURN TEST PROMPT</p>
+          <p id="test-prompt" class="prompt">
+            On this page, call birth_increment_capability. Then, without refreshing or
+            opening another conversation, immediately discover and call the newly born
+            tool increment_world_by_7 exactly once. Finally report the resulting world value.
+          </p>
+        </div>
+        <button id="copy-prompt" type="button">Copy prompt</button>
+      </section>
+
+      <section class="evidence">
+        <div class="evidence-heading">
+          <div>
+            <p class="eyebrow">BROWSER-SIDE EVIDENCE</p>
+            <h2>Immutable event log</h2>
+          </div>
+          <button id="download-log" type="button" class="secondary">Download JSON</button>
+        </div>
+        <ol id="event-log" aria-live="polite"></ol>
+      </section>
+
+      <footer>
+        PASS = birth tool invoked → new tool registered → same-session new tool invoked →
+        canonical state changed. Registration alone is not a pass.
+      </footer>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

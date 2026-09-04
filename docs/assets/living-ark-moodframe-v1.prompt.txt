@@ -1,0 +1,10 @@
+Use case: style-transfer
+Asset type: refined preproduction game-view moodframe
+Primary request: preserve the exact living-ark premise, broad seed-manta silhouette, top-down oblique cutaway composition, warm brass/terracotta/green life zones, coral thermal catastrophe on the right, and turquoise-gold recovery wave from the supplied frame; change only the rendering language and spatial readability so it looks like a premium playable pixel-art game screen rather than a painterly illustration
+Style/medium: true handcrafted 32-bit pixel art with visibly deliberate square pixel clusters, hard-edged sprite shapes, compact 16-to-32-pixel tile logic, limited color ramps, crisp nearest-neighbor edges, restrained dithering; no smooth brush texture and no high-frequency generated filigree
+Spatial readability: simplify micro-noise; divide the ark into clearly readable sector masses and chamber silhouettes; show vein networks as clean branching 2-to-4-pixel-wide paths with animated-flow implications; preserve rich detail but establish a strong hierarchy from whole ark to sectors to cells
+Composition/framing: keep wide 16:9 and the ark occupying roughly 80 percent of frame with dark breathing space; make it believable that a user can pan, zoom, and inspect this world
+Lighting/mood: keep the intimate amber cabin pools, cream shell, moss life zones, cold abyss, coral danger, and teal recovery; strong readable light pools and shadows
+Constraints: no text, no logo, no watermark, no UI panels, no avatar, no cockpit, no combat, no generic neon cyberpunk, no dominant purple-magenta, no photorealism, no glossy 3D; do not add new focal objects
+
+Generation method: OpenAI built-in image generation, refining one earlier original concept frame made in the same turn.

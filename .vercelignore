@@ -1,0 +1,8 @@
+node_modules
+dist
+probe
+probe2
+research
+docs/assets
+*.tsbuildinfo
+CHATGPT_RESEARCH_HANDOFF.md
