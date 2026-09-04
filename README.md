@@ -119,3 +119,7 @@ Detailed design lives in [ARCHITECTURE.md](./ARCHITECTURE.md), [docs/VISUAL_BIBL
 ## Visual authorship
 
 The Ark is a code-driven interactive world, not a static background. Its modular pixel-art landmarks were generated specifically for this project, palette-keyed at runtime, placed over canonical sector geometry, and combined with live network, heat, coolant, recovery, camera, and caretaker-drone layers. No reference-game assets are shipped.
+
+## License
+
+Released under the [MIT License](./LICENSE).
