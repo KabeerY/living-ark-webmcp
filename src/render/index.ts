@@ -1,4 +1,5 @@
-// Renderer seam: keep the mechanically proven implementation available while
-// an alternate game-quality renderer is developed against the same contract.
-export { ArkRenderer } from "./ArkRenderer";
+// The game-quality renderer consumes the same canonical ArkRenderer contract.
+// Keep the proven renderer exported as a fallback for debugging and recovery.
+export { GameArkRenderer as ArkRenderer } from "./game-v2/GameArkRenderer";
+export { ArkRenderer as FallbackArkRenderer } from "./ArkRenderer";
 export type { ArkRendererConstructor, ArkRendererContract, ArkRendererOptions } from "./contract";

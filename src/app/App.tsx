@@ -78,13 +78,8 @@ export function App() {
       const requested = LENSES.find((item) => item.key === event.key);
       if (requested) setLens(requested.id);
       const key = event.key.toLowerCase();
-      if (["w", "a", "s", "d"].includes(key)) {
+      if (["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) {
         event.preventDefault();
-        const distance = event.shiftKey ? 120 : 58;
-        rendererRef.current?.panBy(
-          key === "a" ? -distance : key === "d" ? distance : 0,
-          key === "w" ? -distance : key === "s" ? distance : 0,
-        );
       }
       if (event.key.toLowerCase() === "h") rendererRef.current?.frameArk();
       if (event.key === "Escape") {
@@ -244,7 +239,7 @@ export function App() {
       </button>
 
       <footer className="status-footer">
-        <span>DRAG / WASD TO EXPLORE · SCROLL TO DESCEND · H TO FRAME ARK</span>
+        <span>WASD / ARROWS TO WALK CARETAKER · C TO FOLLOW · DRAG / PINCH TO PAN · H TO FRAME ARK</span>
         <span>REV {snapshot.revision} · TICK {snapshot.tick} · {stateHash}</span>
       </footer>
     </main>

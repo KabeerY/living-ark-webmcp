@@ -83,11 +83,11 @@ button {
 .crisis-chain,
 .tool-slot,
 .vital span {
-  color: rgba(243, 223, 192, 0.57);
+  color: rgba(243, 223, 192, 0.65);
   font-family: "IBM Plex Mono", monospace;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -97,23 +97,24 @@ button {
   gap: 10px;
   margin-top: 4px;
   padding: 10px 15px;
-  border: 1px solid rgba(216, 60, 62, 0.3);
-  background: rgba(59, 24, 29, 0.54);
-  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(216, 60, 62, 0.35);
+  background: rgba(59, 24, 29, 0.65);
+  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.24);
 }
 
 .phase-block div {
   display: flex;
   flex-direction: column;
-  color: rgba(243, 223, 192, 0.52);
+  color: rgba(243, 223, 192, 0.65);
   font-family: "IBM Plex Mono", monospace;
-  font-size: 9px;
-  letter-spacing: 0.13em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 
 .phase-block strong {
   color: #fff0c9;
-  font-size: 12px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
 }
 
 .phase-block--stable {
@@ -399,24 +400,27 @@ button {
   display: block;
   margin-top: 3px;
   font-family: "IBM Plex Mono", monospace;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
+  letter-spacing: 0.04em;
 }
 
 .tool-slot {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 10px 15px;
-  border-left: 1px solid rgba(243, 223, 192, 0.12);
-  color: rgba(243, 223, 192, 0.46);
-  font-size: 8px;
+  padding: 10px 16px;
+  border-left: 1px solid rgba(243, 223, 192, 0.15);
+  color: rgba(243, 223, 192, 0.6);
+  font-size: 10px;
+  letter-spacing: 0.12em;
 }
 
 .tool-slot strong {
-  margin-top: 4px;
+  margin-top: 3px;
   color: #d85b3f;
-  font-size: 10px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
 }
 
 .tool-slot strong.born {
