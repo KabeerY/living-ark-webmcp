@@ -962,6 +962,18 @@ button {
   text-shadow: 0 0 18px rgba(55, 175, 165, 0.3);
 }
 
+.birth-slot--revoked {
+  border-color: rgba(216, 60, 62, 0.38);
+  border-style: solid;
+  background: rgba(116, 24, 34, 0.12);
+}
+
+.birth-slot--revoked > strong {
+  color: #e97362;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
 .lineage {
   padding: 10px 12px 11px;
 }

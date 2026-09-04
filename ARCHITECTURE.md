@@ -16,6 +16,8 @@ inspect live semantic state
 → reject or issue executable certificate
 → dynamically register a new WebMCP tool
 → same agent invokes the born tool
+→ attack against 16 fresh zero-day worlds
+→ self-revoke on failure or grant one canonical write on success
 → canonical engine state and visible Ark recover together
 ```
 
@@ -25,13 +27,13 @@ An ion storm has fractured the Ark's thermal mesh. Heat is moving toward the Cry
 
 The visiting browser agent is the capability author. There is no hidden internal model, prewritten winning call, shell, arbitrary JavaScript evaluator, DOM mutation tool, or generic `execute_program` escape hatch.
 
-Only a candidate that survives every sealed world earns a versioned tool such as:
+Only a candidate that survives every sealed world earns catalog presence as a versioned tool such as:
 
 ```text
 stabilize_thermal_mesh_v2
 ```
 
-That tool executes the exact certified program with the exact certified arguments. Its public input schema is `{}` so the proof cannot be invalidated by a post-certification override.
+That tool executes the exact certified program with the exact certified arguments. Its public input schema is `{}` so the proof cannot be invalidated by a post-certification override. Catalog presence is not write authority: immediately before a mutating invocation, the candidate must survive a separate freshly generated 16-world canary. Failure unregisters the born tool before `ArkStore.replace` is reachable.
 
 ### Non-negotiable invariants
 
@@ -41,10 +43,13 @@ That tool executes the exact certified program with the exact certified argument
 4. Hidden seeds and hidden world dumps are never returned through WebMCP.
 5. A failed candidate returns aggregate causal failure clusters and cannot change revision or state hash.
 6. A passing certificate binds candidate, suite, engine, invariants, replay evidence, and default arguments.
-7. Tool birth is a real same-session `document.modelContext.registerTool` call.
-8. Canonical execution is possible only through the born tool.
-9. A repeated call against an already stable Ark is an idempotent no-op.
-10. Pixi and React are projections of canonical snapshots; neither is simulation truth.
+7. Every certification attempt receives a new hidden Fleet; revisions never inherit the suite that falsified their parent.
+8. Tool birth is a real same-session `document.modelContext.registerTool` call.
+9. Every mutating invocation receives a different zero-day canary and a tamper-evident receipt.
+10. A failed invocation canary removes only the born tool and cannot change canonical revision, hash, or state.
+11. Canonical execution is possible only through the born tool after its canary passes.
+12. A repeated call against an already stable Ark is an idempotent no-op.
+13. Pixi and React are projections of canonical snapshots; neither is simulation truth.
 
 ## 2. Runtime topology
 
@@ -68,6 +73,8 @@ document.modelContext
                          │
                   dynamic born tool
                          │
+                  16-world zero-day canary
+                         │ pass only
                   production interpreter
                          │
                   12-tick thermal horizon
@@ -84,7 +91,8 @@ document.modelContext
 | Visible preview | Clone only | No | Yes |
 | Sealed Fleet worker | Generated worlds only | No | Yes |
 | Certificate verifier | Metadata/evidence | No | No |
-| Born tool | Yes | Yes, once certified | Certified program only |
+| Born tool before canary | Yes | No | No |
+| Born tool after canary | Yes | One bounded write | Certified program only |
 
 There is no route from candidate JSON directly to `ArkStore.replace`.
 
@@ -209,7 +217,7 @@ Eight fixed public seeds let an agent test a candidate without authority. Result
 
 ### Sealed Fleet
 
-Each page session creates 64 hidden seeds with `crypto.getRandomValues`. The seeds are sent to a dedicated Web Worker with the frozen compiled candidate. The worker returns evidence, never the seeds or full hidden worlds.
+Every call to `validate_thermal_capability` creates 64 new unique hidden seeds with `crypto.getRandomValues`. The seeds are sent to a dedicated Web Worker with the frozen compiled candidate. The worker returns evidence, never the seeds or full hidden worlds. A child revision therefore cannot overfit or inherit the exact Fleet that falsified its parent.
 
 Each validation case runs twice through the same production interpreter and twelve-tick horizon. A case passes only if all of these hold:
 
@@ -240,6 +248,19 @@ A certificate is issued only for an internally consistent exact 64/64 report. It
 
 The certificate ID hashes its full body. Before registration and every canonical execution, `FoundryStore.assertCertified` recompiles the definition and rechecks the certificate, validation cases, digests, suite, engine, counts, horizon, replay flags, and arguments. Evidence and certificate objects are deep-frozen.
 
+### Invocation freshness gate
+
+A certificate proves generalization at birth time; it does not become permanent ambient authority. When a born tool is asked to mutate the canonical Ark:
+
+1. `FoundryStore` generates 16 new unique cryptographic seeds;
+2. the same isolated worker runs the same production interpreter, delayed horizon, invariants, and replay check;
+3. the main thread independently rejects any internally inconsistent report;
+4. a receipt binds candidate hash, certificate ID, new suite fingerprint, engine, counts, horizon, invariant set, failure clusters, replay digest, evidence digest, and check time;
+5. the receipt and full validation evidence are cloned, deep-frozen, and integrity-checked; and
+6. only an exact 16/16 result unlocks `executeCertified` and `ArkStore.replace`.
+
+If any zero-day world fails, the born tool's dedicated `AbortController` fires immediately. That verb disappears from the WebMCP catalog, the failure receipt remains in lineage, and the canonical Ark remains byte-for-byte unchanged. A worker error is fail-closed for that invocation but retriable; it never grants authority.
+
 ## 6. WebMCP surface
 
 The initial catalog contains exactly eight tools:
@@ -255,7 +276,9 @@ The initial catalog contains exactly eight tools:
 | `validate_thermal_capability` | No | Attack against the sealed Fleet and possibly grant authority |
 | `inspect_capability_lineage` | No | Candidate versions, failures, certificate, and born-tool state |
 
-All registrations share one `AbortController`. Aborting the signal removes both the initial tools and any same-session born tool; there is no invented `unregisterTool` API.
+The eight initial registrations share one parent `AbortController`. Every born tool receives its own child controller linked to that parent. Parent teardown removes the whole page catalog; a failed zero-day canary aborts only the born tool. There is no invented `unregisterTool` API.
+
+Only one born capability is active at a time. Certifying a newer revision aborts and removes the previous born registration before adding its replacement, so the visible ninth slot and executable authority cannot drift apart.
 
 ### Dynamic birth
 
@@ -268,7 +291,7 @@ After a valid certificate:
 5. the Foundry records the born candidate/tool name; and
 6. the current browser agent can refresh its tool snapshot and call it immediately.
 
-The born tool rejects every non-empty input object. On first execution it returns exact before/after revisions, hashes, metrics, runtime use, regrown edge IDs, certificate, and stable status. If the Ark is already inside its certified critical-safety envelope, it returns an explicit no-op receipt.
+The born tool rejects every non-empty input object. A mutating call first runs the invocation freshness gate. On success it returns exact before/after revisions, hashes, metrics, runtime use, regrown edge IDs, certificate, zero-day receipt, authority state, and stable status. Concurrent first calls are rejected while a canary/execution is in flight. If the Ark is already inside its certified critical-safety envelope, it returns an explicit no-op receipt without rerunning a canary or mutating state.
 
 ## 7. One state, two projections
 
@@ -340,8 +363,11 @@ The automated suite covers:
 - generic target ordering;
 - delayed horizon and replay equality;
 - exact certificate issuance requirements;
+- fresh certification suites for every revision;
 - forged passing-report rejection;
 - frozen validation/certificate/argument evidence;
+- invocation-canary receipt integrity;
+- zero-day failure self-revocation before canonical mutation;
 - weak-policy rejection and unchanged canonical state;
 - same-session dynamic tool birth;
 - override rejection;
@@ -359,7 +385,7 @@ The native-browser run and exact observed metrics are recorded in `docs/VERIFICA
 These are boundaries, not hidden TODO claims:
 
 - The shipped capability grammar is thermal-only.
-- Certificates and born tools are session-scoped; a full page reload creates a fresh Ark/Fleet and resets the catalog.
+- Certificates, canary receipts, and born tools are session-scoped; a full page reload creates a fresh Ark and resets the catalog.
 - The hero simulation is synthetic and deterministic by design; it is not presented as a physical engineering model.
 - The hard certified safety invariant concerns critical cells. Global hot-cell counts are returned separately and never conflated with critical safety.
 - Audio and persistent IndexedDB lineage are not shipped.
@@ -376,6 +402,8 @@ The build is acceptable only while all of these remain true:
 5. Passing changes the browser's live WebMCP catalog.
 6. Frozen certified arguments cannot be overridden.
 7. The same agent invokes the born tool without refresh/reconnect.
-8. The canonical engine—not a UI flag—causes recovery.
-9. The recovered world, HUD, tool results, revision, and hash agree.
-10. Removing WebMCP destroys the agent-authored capability-birth loop rather than leaving the product essentially intact.
+8. The born tool survives a different fresh 16-world suite before any canonical write.
+9. A forced canary failure unregisters the verb and leaves canonical revision/hash unchanged.
+10. The canonical engine—not a UI flag—causes recovery.
+11. The recovered world, HUD, tool results, revision, hash, and zero-day receipt agree.
+12. Removing WebMCP destroys the agent-authored capability-birth loop rather than leaving the product essentially intact.

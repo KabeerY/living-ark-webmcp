@@ -32,6 +32,7 @@ export function App() {
 
   const selected = selectedId === null ? null : snapshot.cells[selectedId];
   const arkStable = snapshot.phase === "stable";
+  const bornToolRegistered = Boolean(foundry.bornToolName && foundry.bornToolStatus !== "revoked");
 
   useEffect(() => {
     const host = hostRef.current;
@@ -50,17 +51,22 @@ export function App() {
   }, [snapshot]);
 
   useEffect(() => {
-    if (foundry.candidates.length > previousCandidateCount.current || foundry.validatingCandidateId || foundry.bornToolName) {
+    if (
+      foundry.candidates.length > previousCandidateCount.current ||
+      foundry.validatingCandidateId ||
+      foundry.bornToolStatus === "checking" ||
+      foundry.bornToolStatus === "revoked"
+    ) {
       setFoundryOpen(true);
     }
     previousCandidateCount.current = foundry.candidates.length;
-  }, [foundry.bornToolName, foundry.candidates.length, foundry.validatingCandidateId]);
+  }, [foundry.bornToolStatus, foundry.candidates.length, foundry.validatingCandidateId]);
 
   useEffect(() => {
-    if (!arkStable || !foundry.bornToolName) return;
+    if (!arkStable || !foundry.bornToolName || foundry.bornToolStatus !== "executed") return;
     const revealWorld = window.setTimeout(() => setFoundryOpen(false), 620);
     return () => window.clearTimeout(revealWorld);
-  }, [arkStable, foundry.bornToolName, snapshot.revision]);
+  }, [arkStable, foundry.bornToolName, foundry.bornToolStatus, snapshot.revision]);
 
   useEffect(() => {
     rendererRef.current?.setLens(lens);
@@ -153,12 +159,12 @@ export function App() {
         </div>
         <p>
           {arkStable
-            ? `${foundry.bornToolName ?? "The born capability"} held every critical system below the hard limit through the delayed horizon.`
+            ? `${foundry.bornToolName ?? "The born capability"} passed its zero-day canary and held every critical system below the hard limit through the delayed horizon.`
             : "Heat is crossing the starboard mesh toward the Cryovault. No canonical repair capability exists."}
         </p>
         <div className="crisis-chain">
           <span>{arkStable ? "12-TICK PROOF" : "ION IMPACT"}</span><i />
-          <span>{arkStable ? "64/64 WORLDS" : `${metrics.fracturedEdges} FRACTURES`}</span><i />
+          <span>{arkStable ? "64/64 + 16/16" : `${metrics.fracturedEdges} FRACTURES`}</span><i />
           <span>{metrics.overheatedCriticalCells} CRITICAL HOT</span>
         </div>
       </aside>
@@ -220,7 +226,7 @@ export function App() {
             <span className="eyebrow">CAPABILITY FOUNDRY</span>
             <strong>
               {siteTools === "live"
-                ? `${8 + (foundry.bornToolName ? 1 : 0)} native tools · ${foundry.validatingCandidateId ? "fleet running" : foundry.candidates.length ? `${foundry.candidates.length} prototype${foundry.candidates.length === 1 ? "" : "s"}` : "awaiting agent"}`
+                ? `${8 + (bornToolRegistered ? 1 : 0)} native tools · ${foundry.validatingCandidateId ? "fleet running" : foundry.bornToolStatus === "checking" ? "zero-day canary" : foundry.bornToolStatus === "revoked" ? "born verb revoked" : foundry.bornToolStatus === "executed" ? "receipt sealed" : foundry.candidates.length ? `${foundry.candidates.length} prototype${foundry.candidates.length === 1 ? "" : "s"}` : "awaiting agent"}`
                 : siteTools === "waiting"
                   ? "Detecting Site Tools…"
                   : "Visual preview · Site Tools unavailable"}
@@ -229,7 +235,11 @@ export function App() {
         </div>
         <div className="tool-slot">
           <span>ARK VOCABULARY</span>
-          <strong className={foundry.bornToolName ? "born" : ""}>{foundry.bornToolName ?? "NO REPAIR VERB"}</strong>
+          <strong className={bornToolRegistered ? "born" : ""}>
+            {foundry.bornToolStatus === "revoked"
+              ? `REVOKED · ${foundry.bornToolName}`
+              : foundry.bornToolName ?? "NO REPAIR VERB"}
+          </strong>
         </div>
       </button>
 

@@ -11,9 +11,9 @@ A visiting browser agent must:
 3. test it in eight visible sandbox worlds;
 4. survive 64 sealed counterfactual worlds and a 12-tick delayed horizon;
 5. earn a new, versioned WebMCP tool in the same page session; and
-6. invoke that born tool to regrow the real thermal mesh and keep the Ark alive.
+6. invoke that born tool, survive a fresh 16-world zero-day canary, and only then regrow the real thermal mesh.
 
-The result is not a renamed generic executor. Before certification, an ArkScript candidate has zero canonical authority. After certification, the page dynamically registers a new frozen, zero-argument tool whose exact policy and arguments are bound to an executable certificate.
+The result is not a renamed generic executor. Before certification, an ArkScript candidate has zero canonical authority. Certification earns catalog presence, not unconditional write access: the page dynamically registers a frozen zero-argument tool, then grants one mutating invocation only after a new 16-world canary passes. A failed canary unregisters the tool before the Ark can change.
 
 ## Why this needs WebMCP
 
@@ -27,6 +27,8 @@ agent authors an inert policy
 64/64 executable proof
         ↓
 9 native page tools
+        ↓
+16/16 zero-day proof
         ↓
 the same agent invokes the newly born verb
 ```
@@ -46,7 +48,7 @@ The page begins with eight WebMCP tools:
 - `validate_thermal_capability`
 - `inspect_capability_lineage`
 
-A passing candidate dynamically adds a ninth tool such as `stabilize_thermal_mesh_v2`. Its input schema is intentionally empty: certified arguments cannot be overridden after proof.
+A passing candidate dynamically adds a ninth tool such as `stabilize_thermal_mesh_v2`. Its input schema is intentionally empty: certified arguments cannot be overridden after proof. Every attempted canonical mutation receives a newly generated 16-world invocation canary; failure self-revokes that ninth tool.
 
 ## Blind-agent mission
 
@@ -61,9 +63,11 @@ The page itself provides the state, grammar, authority boundary, counterexamples
 - The Ark is a deterministic 766-cell simulation with typed thermal, energy, atmosphere, and structural networks.
 - Preview and hidden Fleet runs execute the same ArkScript interpreter used by the canonical tool.
 - Candidates cannot access arbitrary JavaScript, the DOM, storage, network, or clock.
-- Hidden validation runs in a Web Worker over 64 freshly seeded worlds.
+- Every hidden certification call receives a different cryptographically seeded 64-world Fleet in a Web Worker; candidate revisions never share the same sealed suite.
 - Certification checks critical thermal safety, coolant conservation, resource non-negativity, static/runtime budgets, 12 delayed ticks, and deterministic replay hashes.
 - Certificate bodies, execution arguments, validation evidence, and candidate definitions are frozen and integrity-checked before every canonical execution.
+- Immediately before a canonical write, the born tool faces 16 new zero-day worlds. Its frozen receipt binds the certificate, candidate, suite, engine, invariants, replay, evidence digest, counts, and timestamp.
+- A zero-day failure aborts the born tool's own registration and returns the failure receipt while canonical revision, hash, and state remain unchanged.
 - The weak policy can fail without changing the Ark's revision or hash.
 - The recovery animation is derived from the engine's before/after snapshots: topology, flow, temperature, phase, HUD, and world art share one canonical source.
 - A second invocation against an already stable Ark is a verified no-op.
@@ -103,11 +107,13 @@ WebMCP tools
    └── inert ArkScript authoring                  │
              │                                    │
              ├── visible sandbox (8 worlds)       │
-             └── isolated Fleet (64 worlds)       │
+             └── fresh isolated Fleet (64 worlds) │
                          │                         │
                   certificate verifier            │
                          │                         │
                  dynamic tool registration        │
+                         │                         │
+                 zero-day canary (16 worlds)       │
                          │                         │
                  canonical Ark execution ─────────┘
                          │

@@ -3,7 +3,7 @@ import { ArkStore } from "../app/ArkStore";
 import { createHeroArk } from "../engine/heroArk";
 import type { FleetValidator } from "../foundry/FleetValidator";
 import { FoundryStore } from "../foundry/FoundryStore";
-import { validateThermalCapability } from "../foundry/validator";
+import { validateThermalCapability, type ValidationReport } from "../foundry/validator";
 import type { ModelContext, RegisterToolOptions, SiteTool } from "./types";
 import { registerLivingArkTools } from "./livingArkTools";
 
@@ -87,9 +87,12 @@ describe("Living Ark WebMCP integration", () => {
     const context = new MemoryModelContext();
     const ark = new ArkStore(createHeroArk(0xa7c0ffee));
     const foundry = new FoundryStore();
+    let validationCalls = 0;
     const validator = {
-      validate: async (capability: Parameters<typeof validateThermalCapability>[0], seeds: number[]) =>
-        validateThermalCapability(capability, seeds),
+      validate: async (capability: Parameters<typeof validateThermalCapability>[0], seeds: number[]) => {
+        validationCalls += 1;
+        return validateThermalCapability(capability, seeds);
+      },
     } as FleetValidator;
     const unregister = await registerLivingArkTools(context, ark, foundry, validator);
 
@@ -121,6 +124,7 @@ describe("Living Ark WebMCP integration", () => {
 
     expect(broadResult.structuredContent?.authorityGranted).toBe(true);
     expect(foundry.getSnapshot().bornToolName).toBe(bornToolName);
+    expect(foundry.getSnapshot().bornToolStatus).toBe("live");
     expect(context.tools.has(bornToolName)).toBe(true);
     expect([...context.tools]).toHaveLength(9);
     const certified = foundry.requireCandidate(broadId);
@@ -133,15 +137,31 @@ describe("Living Ark WebMCP integration", () => {
       properties: {},
       additionalProperties: false,
     });
-    expect(() => context.require(bornToolName).execute({ targetTemperature: 82 })).toThrow(
+    await expect(context.require(bornToolName).execute({ targetTemperature: 82 })).rejects.toThrow(
       /do not accept parameter overrides/,
     );
 
     const execution = await context.require(bornToolName).execute({});
     expect(execution.structuredContent?.canonicalArkChanged).toBe(true);
     expect(execution.structuredContent?.stable).toBe(true);
+    const canary = execution.structuredContent?.invocationCanary as Record<string, unknown>;
+    expect(canary.passed).toBe(true);
+    expect(canary.passedCases).toBe(16);
+    expect(canary.totalCases).toBe(16);
     expect(ark.getSnapshot().phase).toBe("stable");
     expect(context.tools.has(bornToolName)).toBe(true);
+    expect(foundry.getSnapshot().bornToolStatus).toBe("executed");
+    const executed = foundry.requireCandidate(broadId);
+    expect(Object.isFrozen(executed.invocationCanaryValidation)).toBe(true);
+    expect(Object.isFrozen(executed.invocationCanaryReceipt)).toBe(true);
+    expect(executed.invocationCanaryReceipt?.validationDigest).toBe(canary.validationDigest);
+    expect(validationCalls).toBe(3);
+
+    const originalCanaryReceipt = executed.invocationCanaryReceipt!;
+    executed.invocationCanaryReceipt = { ...originalCanaryReceipt, validationDigest: "tampered0" };
+    expect(() => foundry.assertInvocationCanary(broadId)).toThrow(/receipt integrity verification failed/);
+    executed.invocationCanaryReceipt = originalCanaryReceipt;
+    expect(foundry.assertInvocationCanary(broadId).id).toBe(broadId);
 
     const lineage = await context.require("inspect_capability_lineage").execute({});
     const candidates = lineage.structuredContent?.candidates as Array<Record<string, unknown>>;
@@ -155,8 +175,56 @@ describe("Living Ark WebMCP integration", () => {
     expect(secondExecution.structuredContent?.canonicalArkChanged).toBe(false);
     expect(secondExecution.structuredContent?.alreadyStable).toBe(true);
     expect(ark.getSnapshot()).toEqual(stabilized);
+    expect(validationCalls).toBe(3);
 
     await unregister();
     expect(context.tools.size).toBe(0);
-  });
+  }, 15_000);
+
+  it("self-revokes a born tool when its zero-day canary fails and leaves the canonical Ark untouched", async () => {
+    const context = new MemoryModelContext();
+    const ark = new ArkStore(createHeroArk(0xa7c0ffee));
+    const foundry = new FoundryStore();
+    const failureCode: ValidationReport["cases"][number]["failureCodes"][number] = "CRITICAL_CELL_OVERHEATED";
+    const validator = {
+      validate: async (capability: Parameters<typeof validateThermalCapability>[0], seeds: number[]) => {
+        const report = validateThermalCapability(capability, seeds);
+        if (seeds.length !== 16) return report;
+        const cases: ValidationReport["cases"] = report.cases.map((item, index) =>
+          index === 0 ? { ...item, passed: false, failureCodes: [failureCode] } : item,
+        );
+        return {
+          ...report,
+          passed: false,
+          passedCases: cases.filter((item) => item.passed).length,
+          cases,
+          failureClusters: [{ code: failureCode, worlds: 1 }],
+        };
+      },
+    } as FleetValidator;
+    const unregister = await registerLivingArkTools(context, ark, foundry, validator);
+    const before = structuredClone(ark.getSnapshot());
+
+    const authored = await context.require("author_thermal_capability").execute({ definition: generalized });
+    const candidateId = String(authored.structuredContent?.id);
+    const certified = await context.require("validate_thermal_capability").execute({ candidateId });
+    const bornToolName = String(certified.structuredContent?.bornToolName);
+    const bornTool = context.require(bornToolName);
+    expect(context.tools.size).toBe(9);
+
+    const blocked = await bornTool.execute({});
+    expect(blocked.structuredContent?.canonicalArkChanged).toBe(false);
+    expect(blocked.structuredContent?.authorityState).toBe("REVOKED");
+    expect(ark.getSnapshot()).toEqual(before);
+    expect(context.tools.has(bornToolName)).toBe(false);
+    expect(context.tools.size).toBe(8);
+    expect(foundry.getSnapshot().bornToolStatus).toBe("revoked");
+    const revoked = foundry.requireCandidate(candidateId);
+    expect(revoked.invocationCanaryReceipt?.passed).toBe(false);
+    expect(revoked.invocationCanaryReceipt?.passedCases).toBe(15);
+    expect(Object.isFrozen(revoked.invocationCanaryReceipt)).toBe(true);
+
+    await unregister();
+    expect(context.tools.size).toBe(0);
+  }, 15_000);
 });

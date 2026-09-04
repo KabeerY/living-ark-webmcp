@@ -67,15 +67,25 @@ V2 64/64   CERTIFIED
 DETERMINISTIC REPLAY
 ```
 
-The page dynamically registers `stabilize_thermal_mesh_v2`; the native catalog changes from eight to nine tools.
+The page dynamically registers `stabilize_thermal_mesh_v2`; the native catalog changes from eight to nine tools. Its certificate visibly says `ZERO-DAY 16 PENDING`: catalog presence has been earned, but canonical write authority has not.
 
 Narration:
 
-> “The revision generalizes. Its executable certificate binds the program, random Fleet, engine, invariants, replay evidence, and frozen arguments. Proof changes the browser agent's live vocabulary.”
+> “The revision generalizes. Its executable certificate binds the program, fresh Fleet, engine, invariants, replay evidence, and frozen arguments. Proof changes the browser agent's live vocabulary—but it still has not granted an unconditional write.”
 
-### 1:24–1:52 — the same agent uses the power it earned
+### 1:24–1:56 — the same agent earns the right to use its power
 
 The same agent refreshes its native tool snapshot and invokes `stabilize_thermal_mesh_v2` with `{}`.
+
+Before the world moves, hold on the Foundry transition:
+
+```text
+ZERO-DAY CHECKING 16
+        ↓
+ZERO-DAY 16/16 PASSED
+```
+
+These are 16 newly generated worlds, separate from the 64-world certification Fleet. If any fails, the tool unregisters itself and the Ark remains unchanged.
 
 The Foundry clears automatically after 620 ms. Hold the world through the complete 2.9-second recovery:
 
@@ -89,9 +99,9 @@ The Foundry clears automatically after 620 ms. Hold the world through the comple
 
 Narration:
 
-> “The same agent discovers its newly born verb and invokes it. This is not a green UI toggle: the certified controller regrows 78 fibers, conserves coolant, advances twelve delayed ticks, and the rendered world follows the new canonical snapshot.”
+> “The same agent discovers its newly born verb. At the moment of action it must generalize again across sixteen unseen worlds. Only 16/16 unlocks the canonical write; then the controller regrows 78 fibers, conserves coolant, advances twelve delayed ticks, and the rendered world follows the new canonical snapshot.”
 
-### 1:52–2:14 — verify instead of declaring victory
+### 1:56–2:18 — verify instead of declaring victory
 
 The agent calls `inspect_ark` and `inspect_crisis` again.
 
@@ -103,6 +113,7 @@ critical cells > 85°C     0
 critical peak             61.731°C
 delayed stability         12 / 12
 coolant conserved         yes
+invocation canary          16 / 16
 ```
 
 Open Thermal mode for one second, then return to Living mode.
@@ -111,7 +122,7 @@ Narration:
 
 > “The page, tools, metrics, and world agree because they are projections of one state. Repeating the born tool is an explicit no-op once the certified safety envelope already holds.”
 
-### 2:14–2:35 — land the future
+### 2:18–2:39 — land the future
 
 Close on the recovered Ark, live born-tool name, and V1→V2 lineage.
 
@@ -146,7 +157,10 @@ Before recording:
 - a weak candidate cannot mutate canonical state;
 - the generalized candidate passes several fresh random Fleets in rehearsal;
 - the born tool appears without refresh;
+- the born tool shows `ZERO-DAY 16 PENDING` before invocation;
 - non-empty born-tool arguments are rejected;
+- invocation visibly transitions through `CHECKING 16` to `16/16 PASSED` before recovery;
+- the automated forced-failure test unregisters the born verb without changing the Ark;
 - one canonical execution reaches revision 2 / hash `7af73af9`;
 - the Foundry clears during recovery;
 - a second execution is a no-op;
@@ -157,7 +171,7 @@ Before recording:
 
 ### “Isn't this just code generation?”
 
-Generated JSON is inert. The product event is executable generalization changing canonical authority and the browser's live tool catalog.
+Generated JSON is inert. The product event is executable generalization first changing the browser's live vocabulary, then earning a fresh proof-gated canonical write at invocation time.
 
 ### “Is the validator another model?”
 
@@ -165,7 +179,7 @@ No. It is deterministic interpreter execution over generated worlds with conserv
 
 ### “Are the 64 results scripted?”
 
-No. Each page session creates 64 hidden cryptographic seeds. Every world runs the production generator, interpreter, and horizon.
+No. Every validation attempt creates a different 64-seed cryptographic Fleet. Every world runs the production generator, interpreter, horizon, and deterministic replay. The invocation then receives a separate fresh 16-world canary.
 
 ### “Why is the born tool new if the primitives existed?”
 
@@ -187,4 +201,4 @@ Use three mutually reinforcing artifacts:
 2. **Short video** — the uninterrupted causal loop above.
 3. **Repository** — exact architecture, tests, verification record, and source.
 
-The strongest still image is the recovered Living Ark with `THERMAL MESH STABLE`, `0 CRITICAL HOT`, `64/64 WORLDS`, the born tool in the dock, and the cyan recovered Thermal Choir visible.
+The strongest still image is the recovered Living Ark with `THERMAL MESH STABLE`, `0 CRITICAL HOT`, `64/64 + 16/16`, the born tool in the dock, and the cyan recovered Thermal Choir visible.

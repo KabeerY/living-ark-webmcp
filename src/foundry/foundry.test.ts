@@ -160,40 +160,42 @@ describe("Capability Foundry", () => {
   it("refuses a forged passing report that is not bound to the candidate", async () => {
     const store = new FoundryStore();
     const candidate = store.author(generalized);
-    const forgedCases = Array.from({ length: 64 }, (_, index) => ({
-      index,
-      passed: true,
-      failureCodes: [],
-      beforeHash: "00000000",
-      afterHash: "11111111",
-      peakCriticalTemperature: 70,
-      horizonTicks: 12,
-      stableTicks: 12,
-      replayMatched: true,
-    }));
 
     await expect(
       store.validate(candidate.id, {
-        validate: async () => ({
-          passed: true,
-          passedCases: 64,
-          totalCases: 64,
+        validate: async (capability, seeds) => ({
+          ...validateThermalCapability(capability, seeds),
           candidateHash: "forged000",
-          suiteFingerprint: store.getSnapshot().suiteFingerprint,
-          cases: forgedCases,
-          failureClusters: [],
-          horizonTicks: 12,
-          invariantSet: [
-            "critical thermal stability throughout horizon",
-            "coolant conservation",
-            "resource non-negativity",
-            "material and runtime bounds",
-            "deterministic replay hash equality",
-          ],
         }),
       }),
-    ).rejects.toThrow(/internally inconsistent passing report/);
+    ).rejects.toThrow(/internally inconsistent report/);
     expect(store.requireCandidate(candidate.id).certificate).toBeNull();
     expect(store.getSnapshot().validatingCandidateId).toBeNull();
   });
+
+  it("attacks every certification revision with a different fresh Fleet", async () => {
+    let fleetNumber = 0;
+    const issuedSeeds: number[][] = [];
+    const store = new FoundryStore((count) => {
+      fleetNumber += 1;
+      const seeds = Array.from({ length: count }, (_, index) => fleetNumber * 1_000_000 + index * 7919);
+      issuedSeeds.push(seeds);
+      return seeds;
+    });
+    const validator = {
+      validate: async (capability: Parameters<typeof validateThermalCapability>[0], seeds: number[]) =>
+        validateThermalCapability(capability, seeds),
+    };
+    const first = store.author(generalized);
+    const firstCertified = await store.validate(first.id, validator);
+    const second = store.author(generalized, first.id);
+    const secondCertified = await store.validate(second.id, validator);
+
+    expect(issuedSeeds).toHaveLength(2);
+    expect(issuedSeeds[0]).not.toEqual(issuedSeeds[1]);
+    expect(firstCertified.validation?.suiteFingerprint).not.toBe(secondCertified.validation?.suiteFingerprint);
+    expect(firstCertified.certificate?.suiteFingerprint).toBe(firstCertified.validation?.suiteFingerprint);
+    expect(secondCertified.certificate?.suiteFingerprint).toBe(secondCertified.validation?.suiteFingerprint);
+    expect(store.getSnapshot().suiteFingerprint).toBe(secondCertified.validation?.suiteFingerprint);
+  }, 15_000);
 });

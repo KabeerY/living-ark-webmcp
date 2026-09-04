@@ -13,12 +13,14 @@ npm run build
 
 npm test -- --run
 ✓ 5 test files
-✓ 16 tests
+✓ 18 tests
 ```
 
-The tests cover deterministic world generation, interpreter isolation, validation, certificate integrity, forged-report rejection, tool lifecycle cleanup, frozen born-tool arguments, canonical recovery, repeat-invocation idempotence, and replay-receipt tamper detection. The reference strategy also passed four disjoint 64-world Fleets: 256 additional worlds, each with an independent deterministic replay.
+The tests cover deterministic world generation, interpreter isolation, validation, certificate integrity, forged-report rejection, fresh certification suites per revision, tool lifecycle cleanup, frozen born-tool arguments, successful 16/16 invocation canaries, canary-receipt tamper rejection, forced canary failure with self-revocation before canonical mutation, canonical recovery, repeat-invocation idempotence, and replay-receipt tamper detection. The reference strategy also passed four disjoint 64-world Fleets: 256 additional worlds, each with an independent deterministic replay.
 
-## Native WebMCP browser run
+The native record below was captured before the invocation-freshness gate was added. Its world/recovery metrics remain the deterministic baseline, but its suite/certificate identifiers are historical. The full post-canary native trajectory is intentionally deferred until the final UI branch is selected and merged; do not present the identifiers below as the final submission run.
+
+## Native WebMCP browser run — pre-canary baseline
 
 Host: Codex in-app browser with native WebMCP support  
 Origin: `http://127.0.0.1:4175`  
@@ -52,7 +54,7 @@ canonical revision          unchanged
 canonical hash              unchanged
 ```
 
-The exact hidden Fleet fingerprint for this run was `9821d855`. A new random sealed suite is created per page session.
+The exact hidden Fleet fingerprint for this historical run was `9821d855`. Current code creates a new random sealed suite for every validation attempt.
 
 ### 3. Generalized revision
 

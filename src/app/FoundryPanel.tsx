@@ -16,7 +16,8 @@ function candidateState(candidate: CandidateRecord, validatingCandidateId: strin
   return "INERT";
 }
 
-function shortHash(value: string): string {
+function shortHash(value: string | null | undefined, fallback = "UNOPENED"): string {
+  if (!value) return fallback;
   return value.length > 14 ? `${value.slice(0, 7)}…${value.slice(-6)}` : value;
 }
 
@@ -27,8 +28,24 @@ export function FoundryPanel({ foundry, ark, siteTools, onClose }: FoundryPanelP
   const validating = Boolean(latest && foundry.validatingCandidateId === latest.id);
   const certified = Boolean(latest?.certificate);
   const acted = ark.phase === "stable";
+  const bornAlive = Boolean(foundry.bornToolName && foundry.bornToolStatus !== "revoked");
+  const canary = latest?.invocationCanaryReceipt ?? null;
+  const canaryFact =
+    foundry.bornToolStatus === "checking"
+      ? "ZERO-DAY CHECKING 16"
+      : canary
+        ? `ZERO-DAY ${canary.passedCases}/${canary.totalCases} ${canary.passed ? "PASSED" : "REVOKED"}`
+        : "ZERO-DAY 16 PENDING";
   const steps = ["Observe", "Author", "Attack", "Earn", "Act"];
-  const activeStep = acted ? steps.length : foundry.bornToolName ? 3 : report ? 2 : latest ? 1 : 0;
+  const activeStep = acted
+    ? steps.length
+    : bornAlive || foundry.bornToolStatus === "revoked"
+      ? 3
+      : report
+        ? 2
+        : latest
+          ? 1
+          : 0;
 
   return (
     <aside className="foundry-panel" aria-label="Capability Foundry">
@@ -43,7 +60,8 @@ export function FoundryPanel({ foundry, ark, siteTools, onClose }: FoundryPanelP
       <div className="foundry-rule">
         <span className={`signal ${siteTools === "live" ? "live" : ""}`} />
         <p>
-          Prototypes are inert. Only a policy surviving <strong>64 / 64</strong> sealed worlds can become a live Ark verb.
+          Prototypes are inert. A policy must survive a fresh <strong>64 / 64</strong> Fleet to enter the catalog,
+          then <strong>16 / 16</strong> zero-day worlds before it may write.
         </p>
       </div>
 
@@ -113,7 +131,16 @@ export function FoundryPanel({ foundry, ark, siteTools, onClose }: FoundryPanelP
             <div className="candidate-receipt">
               <span>COMPILED {latest.compiled.compileReport.serializedBytes} B</span>
               <span>HASH {shortHash(latest.compiled.hash)}</span>
-              <span>CANONICAL AUTHORITY {certified ? "EARNED" : "0"}</span>
+              <span>
+                CANONICAL AUTHORITY{" "}
+                {acted
+                  ? "EXERCISED"
+                  : foundry.bornToolStatus === "revoked"
+                    ? "REVOKED"
+                    : certified
+                      ? "CANARY-GATED"
+                      : "0"}
+              </span>
             </div>
           </section>
 
@@ -133,7 +160,7 @@ export function FoundryPanel({ foundry, ark, siteTools, onClose }: FoundryPanelP
                 <span className="eyebrow">COUNTERFACTUAL FLEET</span>
                 <strong>{validating ? "ATTACKING 64 HIDDEN REGIMES" : report ? `${report.passedCases} / ${report.totalCases} SURVIVED` : "SEALED · NOT YET RUN"}</strong>
               </div>
-              <div><span>SUITE</span><code>{shortHash(foundry.suiteFingerprint)}</code></div>
+              <div><span>SUITE</span><code>{shortHash(report?.suiteFingerprint ?? foundry.suiteFingerprint)}</code></div>
             </div>
             <div className="fleet-grid" aria-label="64 sealed validation worlds">
               {Array.from({ length: 64 }, (_, index) => {
@@ -172,16 +199,29 @@ export function FoundryPanel({ foundry, ark, siteTools, onClose }: FoundryPanelP
                   <span>{latest.certificate.horizonTicks} DELAYED TICKS</span>
                   <span>REPLAY {shortHash(latest.certificate.replayDigest)}</span>
                   <span>PROOF {shortHash(latest.certificate.validationDigest)}</span>
+                  <span>{canaryFact}</span>
                 </div>
               </div>
               <strong>64/64</strong>
             </section>
           )}
 
-          <section className={`birth-slot ${foundry.bornToolName ? "birth-slot--alive" : ""}`}>
+          <section
+            className={`birth-slot ${bornAlive ? "birth-slot--alive" : ""} ${foundry.bornToolStatus === "revoked" ? "birth-slot--revoked" : ""}`}
+          >
             <span className="eyebrow">LIVE WEBMCP CATALOG</span>
             <strong>{foundry.bornToolName ?? "EMPTY CAPABILITY SLOT"}</strong>
-            <p>{foundry.bornToolName ? "Born in this browser session. The same agent can invoke it now." : "No prototype has earned a callable name."}</p>
+            <p>
+              {foundry.bornToolStatus === "revoked"
+                ? "Zero-day canary failed. The verb unregistered itself before any canonical write."
+                : foundry.bornToolStatus === "checking"
+                  ? "Catalog verb is attacking a fresh 16-world canary before canonical execution."
+                  : foundry.bornToolStatus === "executed"
+                    ? "Invocation receipt sealed. The certified verb changed the canonical Ark."
+                    : foundry.bornToolName
+                      ? "Born in this browser session. Canonical execution remains zero-day gated."
+                      : "No prototype has earned a callable name."}
+            </p>
           </section>
         </>
       )}
